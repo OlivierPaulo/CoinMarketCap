@@ -27,7 +27,7 @@ headers = {
   'X-CMC_PRO_API_KEY': os.environ.get('COINMARKETCAP_TOKEN'),
 }
 
-print(cryptos.dtypes)
+#print(cryptos.dtypes)
 
 session = Session()
 session.headers.update(headers)
@@ -36,20 +36,20 @@ try:
   response = session.get(url, params=parameters)
   api_result = json.loads(response.text)
   #print(data)
-  for coinmarketcap_id in cryptos.coinmarketcap_id:
-    cryptos["current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
+  for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
+    cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
 
 except (ConnectionError, Timeout, TooManyRedirects) as e:
   print(e)
 
-def trade_action(latest_price, current_price):
-  if current_price == latest_price / 1.1:
-    return "Buy"
-  elif current_price == latest_price * 1.1:
-    return "Sell"
-  else:
-    return "Hold" 
+# def trade_action(latest_price, current_price):
+#   if current_price == latest_price / 1.1:
+#     return "Buy"
+#   elif current_price == latest_price * 1.1:
+#     return "Sell"
+#   else:
+#     return "Hold" 
 
-cryptos["action"] = cryptos.apply(lambda x: trade_action(cryptos["latest_trade_price"], cryptos["current_price"]), axis=1)
+#cryptos["action"] = cryptos.apply(lambda x: trade_action(cryptos["latest_trade_price"], cryptos["current_price"]), axis=1)
 
 print(cryptos)
