@@ -7,8 +7,7 @@ import numpy as np
 
 
 cryptos = pd.DataFrame(np.array([
-    [1, "Bitcoin", "BTC", 27127.62],
-    [1207, "Ethereum", "ETH", 1200], 
+    [1, "Bitcoin", "BTC", 27127.62], 
     [7083, "Uniswap", "UNI", 15.14],
     [328, "Monero", "XMR", 85],
     [7278, "Aave", "AAVE", 250]
