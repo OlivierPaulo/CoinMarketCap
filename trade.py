@@ -4,7 +4,8 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 import pandas as pd
 import numpy as np
-from sendmessage import SendMessage
+from Telegram.sendmessage import SendMessage
+from Telegram.sendmarkdown import SendMarkdown
 
 cryptos = pd.read_csv("data/cryptos.csv")
 
@@ -46,8 +47,8 @@ for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
   cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
   cryptos.loc[ix, "action"] = trade_action(cryptos.loc[ix, "latest_trade_price"], cryptos.loc[ix, "current_price"])
   if cryptos.loc[ix, "action"] != "Hodl":
-    text = f"{cryptos.loc[ix, 'action']} {cryptos.loc[ix, 'name']} @ {cryptos.loc[ix, 'current_price']}€ per {cryptos.loc[ix, 'symbol']}"
-    SendMessage(chat_id='509161525', text=text)
+    text = f"*{cryptos.loc[ix, 'action']}* `{cryptos.loc[ix, 'name']}` _@{cryptos.loc[ix, 'current_price']}€_ per *{cryptos.loc[ix, 'symbol']}*"
+    SendMarkdown(chat_id='509161525', text=text, token=os.environ.get('TELEGRAM_API_TOKEN'))
     cryptos.loc[ix, "latest_trade_price"] = cryptos.loc[ix, "current_price"]
 
 cryptos.to_csv("data/cryptos.csv", index=False)
