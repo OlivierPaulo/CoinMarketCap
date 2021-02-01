@@ -4,16 +4,9 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 import pandas as pd
 import numpy as np
+from sendmessage import SendMessage
 
-
-cryptos = pd.DataFrame(np.array([
-    [1, "Bitcoin", "BTC", 27127.62], 
-    [7083, "Uniswap", "UNI", 15.14],
-    [328, "Monero", "XMR", 85],
-    [7278, "Aave", "AAVE", 250]
-  ]), columns=["coinmarketcap_id", "name", "symbol", "latest_trade_price"])
-cryptos["coinmarketcap_id"] = cryptos["coinmarketcap_id"].astype("int64")
-cryptos["latest_trade_price"] = cryptos["latest_trade_price"].astype("float64")
+cryptos = pd.read_csv("data/cryptos.csv")
 
 url = 'https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest'
 parameters = {
@@ -35,20 +28,26 @@ try:
   response = session.get(url, params=parameters)
   api_result = json.loads(response.text)
   #print(data)
-  for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
-    cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
+
 
 except (ConnectionError, Timeout, TooManyRedirects) as e:
   print(e)
 
-# def trade_action(latest_price, current_price):
-#   if current_price == latest_price / 1.1:
-#     return "Buy"
-#   elif current_price == latest_price * 1.1:
-#     return "Sell"
-#   else:
-#     return "Hold" 
+def trade_action(latest_trade_price, current_price):
+  if current_price <= latest_trade_price / 1.095:
+    return "Buy"
+  elif current_price >= latest_trade_price * 1.095:
+    return "Sell"
+  else:
+    return "Hodl" 
 
-#cryptos["action"] = cryptos.apply(lambda x: trade_action(cryptos["latest_trade_price"], cryptos["current_price"]), axis=1)
 
-print(cryptos)
+for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
+  cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
+  cryptos.loc[ix, "action"] = trade_action(cryptos.loc[ix, "latest_trade_price"], cryptos.loc[ix, "current_price"])
+  if cryptos.loc[ix, "action"] != "Hodl":
+    text = f"{cryptos.loc[ix, 'action']} {cryptos.loc[ix, 'name']} @ {cryptos.loc[ix, 'current_price']}€ per {cryptos.loc[ix, 'symbol']}"
+    SendMessage(chat_id='509161525', text=text)
+    cryptos.loc[ix, "latest_trade_price"] = cryptos.loc[ix, "current_price"]
+
+cryptos.to_csv("data/cryptos.csv", index=False)
