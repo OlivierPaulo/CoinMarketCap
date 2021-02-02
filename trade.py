@@ -47,7 +47,8 @@ for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
   cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
   cryptos.loc[ix, "action"] = trade_action(cryptos.loc[ix, "latest_trade_price"], cryptos.loc[ix, "current_price"])
   if cryptos.loc[ix, "action"] != "Hodl":
-    text = f"*{cryptos.loc[ix, 'action']}* `{cryptos.loc[ix, 'name']}` _@{cryptos.loc[ix, 'current_price']}€_ per *{cryptos.loc[ix, 'symbol']}*"
+    current_price = str(cryptos.loc[ix, 'current_price']).replace('.',',')
+    text = f"*Alert {cryptos.loc[ix, 'action']}* `{cryptos.loc[ix, 'name']}` _@ {current_price}€_ per *{cryptos.loc[ix, 'symbol']}*"
     SendMarkdown(chat_id='509161525', text=text, token=os.environ.get('TELEGRAM_API_TOKEN'))
     cryptos.loc[ix, "latest_trade_price"] = cryptos.loc[ix, "current_price"]
 

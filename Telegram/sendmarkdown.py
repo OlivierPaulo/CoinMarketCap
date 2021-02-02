@@ -4,7 +4,7 @@ import json
 
 
 ## Function to sendMessage to Telegram
-def SendMarkdown(chat_id='509161525', text='*Hey this is Markdown*', token=os.environ.get("TELEGRAM_API_TOKEN"), parse_mode="MarkdownV2"):  ## Specify chat_id and text message
+def SendMarkdown(chat_id='509161525', text='*Hey this is Markdown*', token=os.environ.get("TELEGRAM_API_TOKEN"), parse_mode="MarkdownV2"):
     
     BASE_URI = "https://api.telegram.org"
 
