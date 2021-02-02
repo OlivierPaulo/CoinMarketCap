@@ -35,13 +35,15 @@ except (ConnectionError, Timeout, TooManyRedirects) as e:
   print(e)
 
 def trade_action(latest_trade_price, current_price):
-  if current_price <= latest_trade_price / 1.095:
+  if current_price <= latest_trade_price / 1.1:
     return "Buy"
-  elif current_price >= latest_trade_price * 1.095:
+  elif current_price >= latest_trade_price * 1.1:
     return "Sell"
   else:
     return "Hodl" 
 
+chat_id = "509161525"
+telegram_token = os.environ.get('TELEGRAM_API_TOKEN')
 
 for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
   cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],2)
@@ -49,7 +51,11 @@ for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
   if cryptos.loc[ix, "action"] != "Hodl":
     current_price = str(cryptos.loc[ix, 'current_price']).replace('.',',')
     text = f"*Alert {cryptos.loc[ix, 'action']}* `{cryptos.loc[ix, 'name']}` _@ {current_price}€_ per *{cryptos.loc[ix, 'symbol']}*"
-    SendMarkdown(chat_id='509161525', text=text, token=os.environ.get('TELEGRAM_API_TOKEN'))
+    SendMarkdown(chat_id=chat_id, text=text, token=telegram_token)
     cryptos.loc[ix, "latest_trade_price"] = cryptos.loc[ix, "current_price"]
+    cryptos.loc[ix, "buy_price"] = round(cryptos.loc[ix, "latest_trade_price"] / 1.1, 2)
+    cryptos.loc[ix, "sell_price"] = round(cryptos.loc[ix, "latest_trade_price"] * 1.1, 2)
+    text2 = f"Next trade for ```{cryptos.loc[ix, 'symbol']}```:\n*Buy* price : _{str(cryptos.loc[ix, 'buy_price']).replace('.',',')}€_ \n*Sell* price : _{str(cryptos.loc[ix, 'sell_price']).replace('.',',')}€_"
+    SendMarkdown(chat_id=chat_id, text=text2, token=telegram_token)
 
 cryptos.to_csv("data/cryptos.csv", index=False)
