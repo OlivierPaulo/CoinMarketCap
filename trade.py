@@ -46,7 +46,7 @@ chat_id = "509161525"
 telegram_token = os.environ.get('TELEGRAM_API_TOKEN')
 
 for ix, coinmarketcap_id in cryptos.coinmarketcap_id.iteritems():
-  cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"],3)
+  cryptos.loc[ix, "current_price"] = round(api_result["data"][str(coinmarketcap_id)]["quote"]["EUR"]["price"], 3)
   cryptos.loc[ix, "action"] = trade_action(cryptos.loc[ix, "latest_trade_price"], cryptos.loc[ix, "current_price"])
   if cryptos.loc[ix, "action"] != "Hodl":
     current_price = str(cryptos.loc[ix, 'current_price']).replace('.',',')
